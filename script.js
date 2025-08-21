@@ -30,11 +30,12 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 // Navbar background change on scroll
 window.addEventListener('scroll', () => {
     const navbar = document.querySelector('.navbar');
+    const isDark = document.documentElement.classList.contains('dark');
     if (window.scrollY > 100) {
-        navbar.style.background = 'rgba(255, 255, 255, 0.98)';
+       navbar.style.background = isDark ? 'rgba(2, 6, 23, 0.95)' : 'rgba(255, 255, 255, 0.98)';
         navbar.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.1)';
     } else {
-        navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+        navbar.style.background = isDark ? 'rgba(2, 6, 23, 0.9)' : 'rgba(255, 255, 255, 0.95)';
         navbar.style.boxShadow = 'none';
     }
 });
@@ -277,4 +278,37 @@ activeLinkStyle.textContent = `
         width: 100% !important;
     }
 `;
+
 document.head.appendChild(activeLinkStyle); 
+
+// Theme initialization and toggle
+document.addEventListener('DOMContentLoaded', () => {
+    const storedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (storedTheme === 'dark' || (!storedTheme && prefersDark)) {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+    updateThemeToggleIcon();
+    // Ensure navbar background matches theme on load
+    window.dispatchEvent(new Event('scroll'));
+});
+
+const themeToggleBtn = document.querySelector('.theme-toggle');
+if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+        const root = document.documentElement;
+        const isDark = root.classList.toggle('dark');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        updateThemeToggleIcon();
+        window.dispatchEvent(new Event('scroll'));
+    });
+}
+
+function updateThemeToggleIcon() {
+    const iconSpan = document.querySelector('.theme-toggle .theme-icon');
+    if (!iconSpan) return;
+    const isDark = document.documentElement.classList.contains('dark');
+    iconSpan.textContent = isDark ? '☀️' : '🌙';
+}
